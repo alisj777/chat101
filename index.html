@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>疯资养老院101</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            
+            /* 自定义渐变背景 */
+            background: linear-gradient(135deg, 
+                #667eea 0%, 
+                #764ba2 25%, 
+                #f093fb 50%, 
+                #f5576c 75%, 
+                #4facfe 100%
+            );
+            
+            /* 添加背景纹理 */
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        /* 主容器 */
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        /* 标题样式 */
+        h1 {
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            font-size: 3.5em;
+            color: #000000;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.3);
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        /* 论坛按钮独立样式 */
+        .forum-button-section {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .forum-btn {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            color: #000000;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .forum-btn:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
+            border-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* 通知提示 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 聊天界面样式 */
+        .chat-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                #ffffff 0%, 
+                #f8f9fa 25%, 
+                #f1f3f4 50%, 
+                #e9ecef 75%, 
+                #dee2e6 100%
+            );
+            z-index: 2000;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chat-header h2 {
+            color: #333;
+            margin: 0;
+            font-size: 2.2em;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        .btn {
+            background: transparent;
+            color: #333;
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .close-chat {
+            background: rgba(255, 255, 255, 0.7) !important;
+            color: #333 !important;
+            font-size: 1.1em !important;
+            padding: 8px 16px !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .close-chat:hover {
+            background: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .chat-messages {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: transparent;
+            border-radius: 0;
+            backdrop-filter: none;
+            min-height: 60vh;
+            max-height: 70vh;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        /* 消息气泡样式 */
+        .chat-message {
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            animation: fadeInMessage 0.3s ease-out;
+            clear: both;
+        }
+        
+        .chat-message.right {
+            align-items: flex-end;
+        }
+        
+        .chat-message.left {
+            align-items: flex-start;
+        }
+        
+        .message-author {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            font-weight: 500;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .chat-message.right .message-bubble {
+            background: rgba(240, 248, 255, 0.8);
+            border-radius: 18px 18px 5px 18px;
+            border: 1px solid rgba(176, 196, 222, 0.3);
+        }
+        
+        .chat-message.left .message-bubble {
+            background: rgba(250, 240, 250, 0.8);
+            border-radius: 18px 18px 18px 5px;
+            border: 1px solid rgba(216, 191, 216, 0.3);
+        }
+        
+        .message-content {
+            font-size: 1em;
+            line-height: 1.4;
+            color: #333;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            margin: 0;
+        }
+        
+        .system-message {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 20px 0;
+            padding: 10px;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .chat-controls {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .chat-controls .btn {
+            margin: 5px 10px;
+            font-size: 1em;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .chat-controls .btn:hover {
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .auto-generating {
+            background: rgba(255, 193, 7, 0.7) !important;
+            color: #000 !important;
+        }
+        
+        @keyframes fadeInMessage {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .chat-container {
+                padding: 10px;
+            }
+            
+            .chat-messages {
+                min-height: 50vh;
+                max-height: 60vh;
+            }
+            
+            .chat-message {
+                max-width: 90%;
+            }
+            
+            .chat-header h2 {
+                font-size: 1.8em;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>疯资养老院101</h1>
+        
+        <!-- 论坛按钮单独放置 -->
+        <div class="forum-button-section">
+            <button class="btn forum-btn" id="forumBtn">💬 疯一下吧</button>
+        </div>
+    </div>
+    
+    <!-- 聊天界面 -->
+    <div class="chat-container" id="chatContainer" style="display: none;">
+        <div class="chat-header">
+            <h2>疯资群聊中...</h2>
+            <button class="btn close-chat" id="closeChatBtn">✕ 返回</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="system-message">疯资们正在热烈讨论中...</div>
+        </div>
+        <div class="chat-controls">
+            <button class="btn" id="startAutoBtn">开始自动聊天</button>
+            <button class="btn" id="stopAutoBtn" style="display: none;">做正常人</button>
+            <button class="btn" id="clearChatBtn">忘掉这段记忆</button>
+        </div>
+    </div>
+    
+    <!-- 通知提示 -->
+    <div class="notification" id="notification">操作成功！</div>
+
+    <script>
+        // 聊天数据库 - 四个人的言论
+        var chatData = [
+            // 药膳鸡校园配送贾工（不接急单）
+            {
+                text: "向你发起了主仆邀请",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "有人能从工作里获得幸福感吗",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "这个世界不能没有同性恋🏳️‍🌈",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "欧尼战逆战来耶",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "只有我能拥有我自己….",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "你感受一下，就是好像一切都死了",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "欢迎您来",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "求求了…",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "在洗衣房的时候大跳solo中",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "正能量",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "不不不，我可能是口嗨",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "：我长这么硬，凭什么服软",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "建模不合格[心碎][心碎][心碎]",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "真的想要1️⃣个他",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            
+            {
+                text: "真正能控制我的东西来了",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "看的我那里袅袅了",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "好为你骄傲啊",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "让我开心一下",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "i'm sorry 我不是坏拉拉",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "等不了了啊啊啊啊啊",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "α 这是阿尔法，β 这是贝塔，γ 这是伽玛，δ 这是德尔塔，ε 这是我亲老婆的小嘴吧～",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "是真的很大",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "我初中的时候觉得你很像暖羊羊",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "我等不了了",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "拜拜！",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "吵吵我吧",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "我们这样还有未来吗？",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            {
+                text: "我也想走清冷易碎感",
+                author: "药膳鸡校园配送贾工（不接急单）"
+            },
+            
+            
+            
+            // AAA建材李姐
+            {
+                text: "我先处理点事情，等会儿抽你",
+                author: "AAA建材李姐"
+            },
+            {
+                text: "get",
+                author: "AAA建材李姐"
+            },
+            {
+                text: "哈哈哈哈哈",
+                author: "AAA建材李姐"
+            },
+            {
+                text: "哦莫",
+                author: "AAA建材李姐"
+            },
+            
+            
+            // Jiexin Yang
+            {
+                text: "太自律了",
+                author: "Jiexin Yang"
+            },
+            {
+                text: "+1",
+                author: "Jiexin Yang"
+            },
+            {
+                text: "真的是！",
+                author: "Jiexin Yang"
+            },
+            {
+                text: "干到八十岁",
+                author: "Jiexin Yang"
+            },
+            {
+                text: "笑死，完全不记得",
+                author: "Jiexin Yang"
+            },
+            
+            // 鸡大壮
+            {
+                text: "我真得控制一下你了",
+                author: "鸡大壮"
+            }
+            {
+                text: "你看了多少......",
+                author: "鸡大壮"
+            },
+            {
+                text: "我艹",
+                author: "鸡大壮"
+            },
+            {
+                text: "去做玩物了",
+                author: "鸡大壮"
+            },
+            {
+                text: "我做狗",
+                author: "鸡大壮"
+            },
+            {
+                text: "快试试",
+                author: "鸡大壮"
+            },
+            {
+                text: "我是拉磨盘的老农",
+                author: "鸡大壮"
+            },
+            {
+                text: "太小众了",
+                author: "鸡大壮"
+            },
+            {
+                text: "不是很喜欢写Java",
+                author: "鸡大壮"
+            },
+            {
+                text: "我想看厕所里能炼出来什么神经病",
+                author: "鸡大壮"
+            },
+            {
+                text: "屁",
+                author: "鸡大壮"
+            },
+            
+        ];
+
+        var autoGenerateInterval;
+        var mainSpeaker = null;
+        
+        // 初始化函数
+        function init() {
+            console.log('开始初始化群聊模拟器...');
+            
+            // 绑定按钮事件
+            var forumBtn = document.getElementById('forumBtn');
+            var closeChatBtn = document.getElementById('closeChatBtn');
+            var startAutoBtn = document.getElementById('startAutoBtn');
+            var stopAutoBtn = document.getElementById('stopAutoBtn');
+            var clearChatBtn = document.getElementById('clearChatBtn');
+            
+            if (forumBtn) {
+                forumBtn.onclick = function() {
+                    console.log('进入群聊按钮被点击!');
+                    openChatForum();
+                };
+                console.log('进入群聊按钮事件绑定成功');
+            }
+            
+            if (closeChatBtn) {
+                closeChatBtn.onclick = closeChatForum;
+            }
+            
+            if (startAutoBtn) {
+                startAutoBtn.onclick = startAutoGenerate;
+            }
+            
+            if (stopAutoBtn) {
+                stopAutoBtn.onclick = stopAutoGenerate;
+            }
+            
+            if (clearChatBtn) {
+                clearChatBtn.onclick = clearChatMessages;
+            }
+            
+            console.log('群聊模拟器初始化完成');
+        }
+        
+        // 获取所有不同的作者名称
+        function getAllAuthors() {
+            var authors = [];
+            for (var i = 0; i < chatData.length; i++) {
+                var author = chatData[i].author;
+                if (authors.indexOf(author) === -1) {
+                    authors.push(author);
+                }
+            }
+            return authors;
+        }
+        
+        // 聊天功能
+        function openChatForum() {
+            console.log('打开群聊被调用');
+            var chatContainer = document.getElementById('chatContainer');
+            if (chatContainer) {
+                chatContainer.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                console.log('群聊已打开');
+                showNotification('欢迎进入群聊！');
+            } else {
+                console.error('找不到聊天容器元素');
+            }
+        }
+        
+        function closeChatForum() {
+            console.log('关闭群聊');
+            var chatContainer = document.getElementById('chatContainer');
+            if (chatContainer) {
+                chatContainer.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                stopAutoGenerate();
+                console.log('群聊已关闭');
+            }
+        }
+        
+        function addChatMessage(author, content) {
+            var chatMessages = document.getElementById('chatMessages');
+            
+            // 如果还没有选择主要发言者，随机选择一个
+            if (!mainSpeaker) {
+                var allAuthors = getAllAuthors();
+                mainSpeaker = allAuthors[Math.floor(Math.random() * allAuthors.length)];
+                console.log('选择的主要发言者:', mainSpeaker);
+            }
+            
+            var messageDiv = document.createElement('div');
+            var isMainSpeaker = (author === mainSpeaker);
+            messageDiv.className = 'chat-message ' + (isMainSpeaker ? 'right' : 'left');
+            
+            messageDiv.innerHTML = 
+                '<div class="message-author">' + author + '</div>' +
+                '<div class="message-bubble">' +
+                '<div class="message-content">' + content + '</div>' +
+                '</div>';
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // 自动滚动到底部
+            setTimeout(function() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+        }
+        
+        function generateRandomChat() {
+            var randomMessage = chatData[Math.floor(Math.random() * chatData.length)];
+            addChatMessage(randomMessage.author, randomMessage.text);
+        }
+        
+        function startAutoGenerate() {
+            if (autoGenerateInterval) return;
+            
+            document.getElementById('startAutoBtn').style.display = 'none';
+            document.getElementById('stopAutoBtn').style.display = 'inline-block';
+            document.getElementById('stopAutoBtn').classList.add('auto-generating');
+            
+            // 立即生成一条
+            generateRandomChat();
+            
+            // 每2秒生成一条
+            autoGenerateInterval = setInterval(generateRandomChat, 2000);
+            showNotification('自动聊天已开始');
+        }
+        
+        function stopAutoGenerate() {
+            if (!autoGenerateInterval) return;
+            
+            clearInterval(autoGenerateInterval);
+            autoGenerateInterval = null;
+            
+            document.getElementById('startAutoBtn').style.display = 'inline-block';
+            document.getElementById('stopAutoBtn').style.display = 'none';
+            document.getElementById('stopAutoBtn').classList.remove('auto-generating');
+            
+            showNotification('自动聊天已停止');
+        }
+        
+        function clearChatMessages() {
+            var chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '<div class="system-message">群友们正在热烈讨论中...</div>';
+            // 重置主要发言者
+            mainSpeaker = null;
+        }
+        
+        // 显示通知
+        function showNotification(message) {
+            var notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(function() {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+        
+        // 确保DOM加载完成后再初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM加载完成，开始初始化');
+                init();
+            });
+        } else {
+            console.log('DOM已加载，直接初始化');
+            init();
+        }
+    </script>
+</body>
+</html>
