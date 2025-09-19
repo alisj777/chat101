@@ -31,143 +31,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-        
-        // 获取所有不同的作者名称
-        function getAllAuthors() {
-            var authors = [];
-            for (var i = 0; i < chatData.length; i++) {
-                var author = chatData[i].author;
-                if (authors.indexOf(author) === -1) {
-                    authors.push(author);
-                }
-            }
-            return authors;
         }
-        
-        // 聊天功能
-        function openChatForum() {
-            console.log('打开群聊被调用');
-            var chatContainer = document.getElementById('chatContainer');
-            if (chatContainer) {
-                chatContainer.style.display = 'block';
-                document.body.style.overflow = 'hidden';
-                console.log('群聊已打开');
-                showNotification('欢迎进入群聊！');
-            } else {
-                console.error('找不到聊天容器元素');
-            }
-        }
-        
-        function closeChatForum() {
-            console.log('关闭群聊');
-            var chatContainer = document.getElementById('chatContainer');
-            if (chatContainer) {
-                chatContainer.style.display = 'none';
-                document.body.style.overflow = 'auto';
-                stopAutoGenerate();
-                console.log('群聊已关闭');
-            }
-        }
-        
-        function addChatMessage(author, content) {
-            var chatMessages = document.getElementById('chatMessages');
-            
-            // 如果还没有选择主要发言者，随机选择一个
-            if (!mainSpeaker) {
-                var allAuthors = getAllAuthors();
-                mainSpeaker = allAuthors[Math.floor(Math.random() * allAuthors.length)];
-                console.log('选择的主要发言者:', mainSpeaker);
-            }
-            
-            var messageDiv = document.createElement('div');
-            var isMainSpeaker = (author === mainSpeaker);
-            messageDiv.className = 'chat-message ' + (isMainSpeaker ? 'right' : 'left');
-            
-            // 获取用户的专属颜色
-            var userColor = userColors[author];
-            var bubbleStyle = '';
-            if (userColor) {
-                bubbleStyle = 'background: ' + userColor.bg + '; border: 1px solid ' + userColor.border + ';';
-            }
-            
-            messageDiv.innerHTML = 
-                '<div class="message-author">' + author + '</div>' +
-                '<div class="message-bubble" style="' + bubbleStyle + '">' +
-                '<div class="message-content">' + content + '</div>' +
-                '</div>';
-            
-            chatMessages.appendChild(messageDiv);
-            
-            // 自动滚动到底部
-            setTimeout(function() {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 100);
-        }
-        
-        function generateRandomChat() {
-            var randomMessage = chatData[Math.floor(Math.random() * chatData.length)];
-            addChatMessage(randomMessage.author, randomMessage.text);
-        }
-        
-        function startAutoGenerate() {
-            if (autoGenerateInterval) return;
-            
-            document.getElementById('startAutoBtn').style.display = 'none';
-            document.getElementById('stopAutoBtn').style.display = 'inline-block';
-            document.getElementById('stopAutoBtn').classList.add('auto-generating');
-            
-            // 立即生成一条
-            generateRandomChat();
-            
-            // 每2秒生成一条
-            autoGenerateInterval = setInterval(generateRandomChat, 2000);
-            showNotification('自动聊天已开始');
-        }
-        
-        function stopAutoGenerate() {
-            if (!autoGenerateInterval) return;
-            
-            clearInterval(autoGenerateInterval);
-            autoGenerateInterval = null;
-            
-            document.getElementById('startAutoBtn').style.display = 'inline-block';
-            document.getElementById('stopAutoBtn').style.display = 'none';
-            document.getElementById('stopAutoBtn').classList.remove('auto-generating');
-            
-            showNotification('自动聊天已停止');
-        }
-        
-        function clearChatMessages() {
-            var chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = '<div class="system-message">疯资们正在热烈讨论中...</div>';
-            // 重置主要发言者，但保持颜色分配
-            mainSpeaker = null;
-        }
-        
-        // 显示通知
-        function showNotification(message) {
-            var notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.classList.add('show');
-            
-            setTimeout(function() {
-                notification.classList.remove('show');
-            }, 2000);
-        }
-        
-        // 确保DOM加载完成后再初始化
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOM加载完成，开始初始化');
-                init();
-            });
-        } else {
-            console.log('DOM已加载，直接初始化');
-            init();
-        }
-    </script>
-</body>
-</html>
         
         /* 主容器 */
         .container {
@@ -357,18 +221,6 @@
             position: relative;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .chat-message.right .message-bubble {
-            background: rgba(240, 248, 255, 0.8);
-            border-radius: 18px 18px 5px 18px;
-            border: 1px solid rgba(176, 196, 222, 0.3);
-        }
-        
-        .chat-message.left .message-bubble {
-            background: rgba(250, 240, 250, 0.8);
-            border-radius: 18px 18px 18px 5px;
-            border: 1px solid rgba(216, 191, 216, 0.3);
         }
         
         .message-content {
@@ -823,23 +675,24 @@
             }
         ];
         
-        // 为每个用户分配颜色
+        // 获取所有不同的作者名称
+        function getAllAuthors() {
+            var authors = [];
+            for (var i = 0; i < chatData.length; i++) {
+                var author = chatData[i].author;
+                if (authors.indexOf(author) === -1) {
+                    authors.push(author);
+                }
+            }
+            return authors;
+        }
+        
+        // 为每个用户分配颜色 - 使用简单的方法
         function assignUserColors() {
             var authors = getAllAuthors();
-            var shuffledColors = availableColors.slice();
-            
-            // 洗牌算法随机打乱颜色数组
-            for (var i = shuffledColors.length - 1; i > 0; i--) {
-                var j = Math.floor(Math.random() * (i + 1));
-                var temp = shuffledColors[i];
-                shuffledColors[i] = shuffledColors[j];
-                shuffledColors[j] = temp;
-            }
-            
-            // 为每个作者分配一个颜色
             for (var i = 0; i < authors.length; i++) {
-                userColors[authors[i]] = shuffledColors[i % shuffledColors.length];
-                console.log('用户', authors[i], '分配到颜色:', shuffledColors[i % shuffledColors.length].name);
+                userColors[authors[i]] = availableColors[i % availableColors.length];
+                console.log('用户', authors[i], '分配到颜色:', availableColors[i % availableColors.length].name);
             }
         }
         
@@ -883,3 +736,127 @@
             
             console.log('群聊模拟器初始化完成');
         }
+        
+        // 聊天功能
+        function openChatForum() {
+            console.log('打开群聊被调用');
+            var chatContainer = document.getElementById('chatContainer');
+            if (chatContainer) {
+                chatContainer.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                console.log('群聊已打开');
+                showNotification('欢迎进入群聊！');
+            } else {
+                console.error('找不到聊天容器元素');
+            }
+        }
+        
+        function closeChatForum() {
+            console.log('关闭群聊');
+            var chatContainer = document.getElementById('chatContainer');
+            if (chatContainer) {
+                chatContainer.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                stopAutoGenerate();
+                console.log('群聊已关闭');
+            }
+        }
+        
+        function addChatMessage(author, content) {
+            var chatMessages = document.getElementById('chatMessages');
+            
+            // 如果还没有选择主要发言者，随机选择一个
+            if (!mainSpeaker) {
+                var allAuthors = getAllAuthors();
+                mainSpeaker = allAuthors[Math.floor(Math.random() * allAuthors.length)];
+                console.log('选择的主要发言者:', mainSpeaker);
+            }
+            
+            var messageDiv = document.createElement('div');
+            var isMainSpeaker = (author === mainSpeaker);
+            messageDiv.className = 'chat-message ' + (isMainSpeaker ? 'right' : 'left');
+            
+            // 获取用户的专属颜色
+            var userColor = userColors[author];
+            var bubbleStyle = '';
+            if (userColor) {
+                bubbleStyle = 'background: ' + userColor.bg + '; border: 1px solid ' + userColor.border + ';';
+            }
+            
+            messageDiv.innerHTML = 
+                '<div class="message-author">' + author + '</div>' +
+                '<div class="message-bubble" style="' + bubbleStyle + '">' +
+                '<div class="message-content">' + content + '</div>' +
+                '</div>';
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // 自动滚动到底部
+            setTimeout(function() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+        }
+        
+        function generateRandomChat() {
+            var randomMessage = chatData[Math.floor(Math.random() * chatData.length)];
+            addChatMessage(randomMessage.author, randomMessage.text);
+        }
+        
+        function startAutoGenerate() {
+            if (autoGenerateInterval) return;
+            
+            document.getElementById('startAutoBtn').style.display = 'none';
+            document.getElementById('stopAutoBtn').style.display = 'inline-block';
+            document.getElementById('stopAutoBtn').classList.add('auto-generating');
+            
+            generateRandomChat();
+            
+            // 每2秒生成一条
+            autoGenerateInterval = setInterval(generateRandomChat, 2000);
+            showNotification('自动聊天已开始');
+        }
+        
+        function stopAutoGenerate() {
+            if (!autoGenerateInterval) return;
+            
+            clearInterval(autoGenerateInterval);
+            autoGenerateInterval = null;
+            
+            document.getElementById('startAutoBtn').style.display = 'inline-block';
+            document.getElementById('stopAutoBtn').style.display = 'none';
+            document.getElementById('stopAutoBtn').classList.remove('auto-generating');
+            
+            showNotification('自动聊天已停止');
+        }
+        
+        function clearChatMessages() {
+            var chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '<div class="system-message">疯资们正在热烈讨论中...</div>';
+            // 重置主要发言者，但保持颜色分配
+            mainSpeaker = null;
+        }
+        
+        // 显示通知
+        function showNotification(message) {
+            var notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(function() {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+        
+        // 确保DOM加载完成后再初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM加载完成，开始初始化');
+                init();
+            });
+        } else {
+            console.log('DOM已加载，直接初始化');
+            init();
+        }
+    </script>
+</body>
+</html>
